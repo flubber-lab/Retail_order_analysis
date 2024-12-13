@@ -42,7 +42,7 @@ for i, (tab, query) in enumerate(zip(tabs, queries), start=1):
     with tab:
         st.subheader(f"Query Results for Section {i}")
         data = execute_query(query)
-        if not data.empty:
+        if data:
             st.dataframe(data)
         else:
             st.write("No data available for this query.")
