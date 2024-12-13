@@ -1,3 +1,4 @@
+# Own Questions
 import streamlit as st
 import pandas as pd
 from db_connection import get_connection, release_connection, close_all_connections
@@ -10,6 +11,7 @@ def execute_query(query):
         cursor = conn.cursor()
         cursor.execute(query)
         rows = cursor.fetchall()
+        # Retrieve column names reliably
         if cursor.description:
             columns = [desc[0] for desc in cursor.description]
         else:
@@ -23,7 +25,7 @@ def execute_query(query):
             release_connection(conn)
 
 # Streamlit App
-st.title("GUVI 10 Queries")
+st.title("Own Questions")
 
 # Define queries
 queries = [
@@ -62,7 +64,7 @@ questions = [
     "Identify the state with the lowest total profit"
 ]
 # Create tabs for sections
-tabs = st.tabs([f"Section {i}" for i in range(1, len(queries) + 1)])
+tabs = st.tabs([f"Questions {i}" for i in range(1, len(queries) + 1)])
 
 # Render query results in each tab
 for i, tab in enumerate(tabs, start=0):
@@ -70,7 +72,7 @@ for i, tab in enumerate(tabs, start=0):
         st.subheader(f"Query Results for Section {i + 1}")
         st.write(questions[i])
         data = execute_query(queries[i])
-        if data:
+        if not data.empty:
             st.dataframe(data, use_container_width= True)
         else:
             st.write("No data available for this query.")
