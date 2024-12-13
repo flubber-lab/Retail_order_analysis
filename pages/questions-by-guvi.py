@@ -22,7 +22,7 @@ st.title("GUVI 10 Queries")
 
 # Define queries (you can replace these with your actual queries)
 queries = [
-    "SELECT category, sub_category, product_id, round (cast (sum(total_sales)as numeric), 2) FROM retail_sales GROUP BY category, sub_category, product_id ORDER BY tot_sales DESC limit 10;",
+    "SELECT category, sub_category, product_id, round (cast (sum(total_sales)as numeric), 2) as tot_sales FROM retail_sales GROUP BY category, sub_category, product_id ORDER BY tot_sales DESC limit 10;",
     "SELECT * FROM table2 LIMIT 10;",
     "SELECT * FROM table3 LIMIT 10;",
     "SELECT * FROM table4 LIMIT 10;",
@@ -34,13 +34,18 @@ queries = [
     "SELECT * FROM table10 LIMIT 10;"
 ]
 
-# Render sections dynamically
-for i, query in enumerate(queries, start=1):
-    with st.expander(f"Section {i}"):
+# Create tabs for sections
+tabs = st.tabs([f"Section {i}" for i in range(1, len(queries) + 1)])
+
+# Render query results in each tab
+for i, (tab, query) in enumerate(zip(tabs, queries), start=1):
+    with tab:
         st.subheader(f"Query Results for Section {i}")
         data = execute_query(query)
-        if data:
-            st.write(data)
+        if not data.empty:
+            st.dataframe(data)
+        else:
+            st.write("No data available for this query.")
 
 # Clean up connections when the app shuts down
 st.on_event("shutdown", close_all_connections)
