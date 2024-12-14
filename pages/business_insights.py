@@ -4,6 +4,8 @@ import pandas as pd
 import plotly.express as px
 from db_connection import get_connection, release_connection, close_all_connections
 
+st.set_page_config(page_title='Business Insights', page_icon = "📊")
+
 # Function to execute queries
 def execute_query(query):
     conn = None
@@ -27,6 +29,9 @@ def execute_query(query):
 
 # Streamlit App
 st.title("Business Analysis")
+st.page_link("streamlit_app.py", label = 'Home', icon = "🏠")
+st.page_link("pages/questions-by-guvi.py", label = 'GUVI Questions', icon = "📋")
+st.page_link("pages/own_questions.py", label = 'Own Questions', icon = "📈")
 
 # Define queries 
 queries = [

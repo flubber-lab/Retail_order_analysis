@@ -3,6 +3,8 @@ import streamlit as st
 import pandas as pd
 from db_connection import get_connection, release_connection, close_all_connections
 
+st.set_page_config(page_title="GUVI Questions", page_icon="📋")
+
 # Function to execute queries
 def execute_query(query):
     conn = None
@@ -26,6 +28,9 @@ def execute_query(query):
 
 # Streamlit App
 st.title("GUVI 10 Queries")
+st.page_link("streamlit_app.py", label = 'Home', icon = "🏠")
+st.page_link("pages/business_insights.py", label = 'Business Insights', icon = "📊")
+st.page_link("pages/own_questions.py", label = 'Own Questions', icon = "📈")
 
 # Define queries 
 queries = [

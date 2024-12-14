@@ -1,7 +1,10 @@
 # Own Questions
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 from db_connection import get_connection, release_connection, close_all_connections
+
+st.set_page_config(page_title = 'Own Questions', page_icon= '📈')
 
 # Function to execute queries
 def execute_query(query):
@@ -26,6 +29,9 @@ def execute_query(query):
 
 # Streamlit App
 st.title("Own Questions")
+st.page_link("streamlit_app.py", label = 'Home', icon = "🏠")
+st.page_link("pages/business_insights.py", label = 'Business Insights', icon = "📊")
+st.page_link("pages/questions-by-guvi.py", label = 'GUVI Questions', icon = "📋")
 
 # Define queries
 queries = [
@@ -63,6 +69,31 @@ questions = [
     "Determine the average order size for each product sub category",
     "Identify the state with the lowest total profit"
 ]
+
+charts = [
+    {"type": "bar", "x": "sub_category", "y": "tot_profit"},
+    {"type": "pie", "labels": "segment", "values": "avg_discount"},
+    {"type": "choropleth", "geo_column": "state", "value_column": "no_of_orders","location_mode":"USA-States"},
+    {"type": "bar", "x": "month", "y": "rev"},
+    {"type": "bar", "x": "category", "y": "avg_sale_price"},
+    {"type": "bar", "x": "product_id", "y": "avg_margin"},
+    {"type": "bar", "x": "year", "y": ["sales","profit"]},
+    {"type": "bar", "x": "segment", "y": "orders"},
+    {"type": "pie", "labels": "sub_category", "values": "avg_qty"},
+    {"type": "choropleth", "geo_column": "state", "value_column": "profit","location_mode":"USA-States"}
+
+]
+
+state_name_to_abbr = {
+    "Alabama": "AL",
+    "Alaska": "AK",
+    "Arizona": "AZ",
+    "Arkansas": "AR",
+    "California": "CA",
+    "Texas": "TX",
+    "New York": "NY",
+    "South Dakota": "SD"}
+
 # Create tabs for sections
 tabs = st.tabs([f"Questions {i}" for i in range(1, len(queries) + 1)])
 
@@ -73,7 +104,41 @@ for i, tab in enumerate(tabs, start=0):
         st.write(questions[i])
         data = execute_query(queries[i])
         if not data.empty:
+            if "state" in data.columns:
+                data["state"] = data["state"].map(state_name_to_abbr)
             st.dataframe(data, use_container_width= True)
+            chart_config = charts[i]
+            chart_type = chart_config["type"] 
+            # Generate charts based on type
+            if chart_type == "line":
+                fig = px.line(data, x=chart_config["x"], y=chart_config["y"], title="Line Chart")
+                st.plotly_chart(fig)
+            elif chart_type == "bar":
+                fig = px.bar(data, x=chart_config["x"], y=chart_config["y"], title="Bar Chart")
+                st.plotly_chart(fig)
+            elif chart_type == "pie":
+                fig = px.pie(data, names=chart_config["labels"], values=chart_config["values"], title="Pie Chart")
+                st.plotly_chart(fig)
+            elif chart_type == "choropleth":
+                geo_column = chart_config["geo_column"]
+                value_column = chart_config["value_column"]
+                location_mode = chart_config.get("location_mode", "ISO-3")
+                if geo_column in data.columns and value_column in data.columns:
+                    # Create a Choropleth Map
+                    fig = px.choropleth(
+                        data,
+                        locations=geo_column,  
+                        locationmode="USA-states", 
+                        color=value_column,
+                        scope ='usa', 
+                        title="Sales by States",
+                        color_continuous_scale="Viridis"  
+                    )
+                    st.plotly_chart(fig)
+                else:
+                    st.error(f"Columns {geo_column} and/or {value_column} not found in data.")
+            else:
+                st.write("Unsupported chart type.")
         else:
             st.write("No data available for this query.")
 
