@@ -45,7 +45,7 @@ To run this application, ensure the following are set up:
 
 1. Clone the repository:
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/flubber-lab/Retail_order_analysis.git
    ```
 
 2. Navigate to the project directory:
